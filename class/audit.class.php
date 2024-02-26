@@ -1,52 +1,158 @@
 <?php
 declare(strict_types=1);
 
+require_once './class/database.class.php';
 require_once './class/user.class.php';
 require_once './class/content.class.php';
 require_once './class/file.class.php';
 
-class Audit {
+require_once './class/exception/user/user_not_logged_in.exception.php';
+
+final class Audit {
     private int $id;
     private string $description;
     private User $actor;
-    private Content|File $media;
+    private null|Content|File $media;
     private DateTime $date;
     private string $action;
 
-    private function __construct(int $id, string $description, User $actor, Content|File $media, DateTime $date, string $action) {
-        // TODO: stub
+    private function __construct(int $id, string $description, User $actor, null|Content|File $media, DateTime $date, string $action) {
+        $this->id = $id;
+        $this->description = $description;
+        $this->actor = $actor;
+        $this->media = $media;
+        $this->date = $date;
+        $this->action = $action;
     }
 
-    public static function create(string $description, User $actor, Content|File $media, string $action): ?self {
-        // TODO: stub
+    public static function log(string $description, null|Content|File $media, string $action): self {
+        $currentUser = User::current();
+        if (!$currentUser) {
+            throw new UserNotLoggedInException();
+        }
+
+        $currentUserID = $currentUser->getID();
+        $mediaID = $media->getID();
+
+        $database = Database::connect();
+        $insertedAuditRow = NULL;
+        try {
+            $insertedAuditRow = $database->insertRow(
+                'AUDIT',
+                [
+                    'AUDIT_DESCRIPTION' => ':description',
+                    'USER_ID' => ':actorID',
+                    'CONTENT_ID' => $media instanceof Content ? ':mediaID' : 'NULL',
+                    'FILE_ID' => $media instanceof File ? ':mediaID' : 'NULL',
+                    'AUDIT_ACTION' => ':action'
+                ],
+                [
+                    ':description' => $description,
+                    ':actorID' => $currentUserID,
+                    ':mediaID' => $mediaID,
+                    ':action' => $action
+                ], 
+                [
+                    'AUDIT_ID' => 'id',
+                    'AUDIT_DATE' => 'dateValue'
+                ]
+            );
+        } catch (PDOException $exception) {
+            switch ($exception->getMessage()) {
+            // TODO: Write cases for common exceptions here
+            default:
+                throw $exception;
+            }
+        }
+        $id = $insertedAuditRow['id'];
+        $date = new DateTime($insertedAuditRow['dateValue']);
+
+        $audit = new Audit(
+            $id,
+            $description,
+            $currentUser,
+            $media,
+            $date,
+            $action
+        );
+        
+        return $audit;
+    }
+    
+    public static function fromID(int $id): ?self {
+        $database = Database::connect();
+        $selectedAuditRow = NULL;
+        try {
+            $selectedAuditRow = $database->selectRow(
+                'AUDIT',
+                [
+                    'AUDIT_DESCRIPTION' => 'description',
+                    'USER_ID' => 'actorID',
+                    'CONTENT_ID' => 'contentID',
+                    'FILE_ID' => 'fileID',
+                    'AUDIT_DATE' => 'dateValue',
+                    'AUDIT_ACTION' => 'action'
+                ],
+                '`AUDIT_ID` = :id',
+                [
+                    ':id' => $id
+                ]
+            );
+        } catch (PDOException $exception) {
+            switch ($exception->getMessage()) {
+            // TODO: Write cases for common exceptions here
+            default:
+                throw $exception;
+            }
+        }
+        if (!$selectedAuditRow) {
+            return NULL;
+        }
+        $description = $selectedAuditRow['description'];
+        $actor = User::fromID($selectedAuditRow['actorID']);
+        $media = NULL;
+        if ($selectedAuditRow['contentID']) {
+            $media = Content::fromID($selectedAuditRow['contentID']);
+        } else if ($selectedAuditRow['fileID']) {
+            $media = File::fromID($selectedAuditRow['fileID']);
+        }
+        $date = new DateTime($selectedAuditRow['dateValue']);
+        $action = $selectedAuditRow['action'];
+
+        $audit = new Audit(
+            $id,
+            $description,
+            $actor,
+            $media,
+            $date,
+            $action
+        );
+
+        return $audit;
     }
 
-    public static function fromId(int $id): ?self {
-        // TODO: stub
-    }
-
-    public function getId(): int {
-        // TODO: stub
+    public function getID(): int {
+        return $this->id;
     }
 
     public function getDescription(): string {
-        // TODO: stub
+        return $this->description;
     }
 
     public function getActor(): User {
-        // TODO: stub
+        return $this->actor;
     }
 
     public function getMedia(): Content|File {
-        // TODO: stub
+        return $this->media;
     }
 
     public function getDate(): DateTime {
-        // TODO: stub
+        return $this->date;
     }
 
     public function getAction(): string {
-        // TODO: stub
+        return $this->action;
     }
 }
 ?>
