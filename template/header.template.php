@@ -17,23 +17,23 @@ $currentUser = User::current();
             <div id="mainNavigationMenu" class="collapse navbar-collapse">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                     <li class="nav-item">
-                        <?php if ($currentURL === '/' || $currentURL === '/index.php'): ?>
-                        <a class="nav-link active" aria-current="page" href="/">Home</a>
+                        <?php if ($currentURL === '/marcus/seemus/'): ?>
+                        <a class="nav-link active" aria-current="page" href="/marcus/seemus">Home</a>
                         <?php else: ?>
-                        <a class="nav-link" href="/">Home</a>
+                        <a class="nav-link" href="/marcus/seemus">Home</a>
                         <?php endif ?>
                     </li>
                     <?php if ($currentUser): ?>
                     <li class="nav-item">
-                        <?php if (str_starts_with($currentURL, '/content/')): ?>
-                        <a class="nav-link active" aria-current="page" href="/content/view.php">Content</a>
+                        <?php if (str_starts_with($currentURL, '/marcus/seemus/content/')): ?>
+                        <a class="nav-link active" aria-current="page" href="/marcus/seemus/content/view.php">Content</a>
                         <?php else: ?>
-                        <a class="nav-link" href="/content/view.php">Content</a>
+                        <a class="nav-link" href="/marcus/seemus/content/view.php">Content</a>
                         <?php endif ?>
                     </li>
                     <!-- TODO: Implement file interface
                     <li class="nav-item">
-                        <?php if (str_starts_with($currentURL, '/file/')): ?>
+                        <?php if (str_starts_with($currentURL, '/marcus/seemus/file/')): ?>
                         <a class="nav-link active" aria-current="page" href="/file/view.php">Files</a>
                         <?php else: ?>
                         <a class="nav-link" href="/file/view.php">Files</a>
@@ -42,15 +42,15 @@ $currentUser = User::current();
                     -->
                     <?php if ($currentUser->isAdministrator()): ?>
                     <li class="nav-item">
-                        <?php if (str_starts_with($currentURL, '/user/')): ?>
-                        <a class="nav-link active" aria-current="page" href="/user/view.php">Users</a>
+                        <?php if (str_starts_with($currentURL, '/marcus/seemus/user/')): ?>
+                        <a class="nav-link active" aria-current="page" href="/marcus/seemus/user/view.php">Users</a>
                         <?php else: ?>
-                        <a class="nav-link" href="/user/view.php">Users</a>
+                        <a class="nav-link" href="/marcus/seemus/user/view.php">Users</a>
                         <?php endif ?>
                     </li>
                     <!-- TODO: Implement audit interface
                     <li class="nav-item">
-                        <?php if (str_starts_with($currentURL, '/audit/')): ?>
+                        <?php if (str_starts_with($currentURL, '/marcus/seemus/audit/')): ?>
                         <a class="nav-link active" aria-current="page" href="/audit/view.php">Audit</a>
                         <?php else: ?>
                         <a class="nav-link" href="/audit/view.php">Audit</a>
@@ -65,22 +65,22 @@ $currentUser = User::current();
                 <ul class="navbar-nav">
                     <li class="nav-item">
                         <?php if ($currentURL === '/user/edit.php'): ?>
-                        <a class="nav-link active" aria-current="page" href="/user/edit.php">Settings</a>
+                        <a class="nav-link active" aria-current="page" href="/marcus/seemus/user/edit.php">Settings</a>
                         <?php else: ?>
-                        <a class="nav-link" href="/user/edit.php">Settings</a>
+                        <a class="nav-link" href="/marcus/seemus/user/edit.php">Settings</a>
                         <?php endif ?>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/user/logout.php">Logout</a>
+                        <a class="nav-link" href="/marcus/seemus/user/logout.php">Logout</a>
                     </li>
                 </ul>
                 <?php else: ?>
                 <ul class="navbar-nav">
                     <li class="nav-item">
                         <?php if ($currentURL === '/user/login.php'): ?>
-                        <a class="nav-link active" aria-current="page" href="/user/login.php">Login</a>
+                        <a class="nav-link active" aria-current="page" href="/marcus/seemus/user/login.php">Login</a>
                         <?php else: ?>
-                        <a class="nav-link" href="/user/login.php">Login</a>
+                        <a class="nav-link" href="/marcus/seemus/user/login.php">Login</a>
                         <?php endif ?>
                     </li>
                 </ul>

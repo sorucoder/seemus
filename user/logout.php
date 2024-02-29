@@ -14,9 +14,9 @@ try {
     $message = 'You\'re Already Logged Out...';
 }
 
-header('Location: /redirect.php?message=' . urlencode($message));
+header('Location: /marcus/seemus/redirect.php?message=' . urlencode($message));
 ?>
 <?php break ?>
 <?php default: ?>
-<?php header('Location: /redirect.php'); ?>
+<?php header('Location: /marcus/seemus/redirect.php'); ?>
 <?php endswitch ?>

@@ -7,7 +7,7 @@ require_once $_SERVER['ROOT_PATH'] . '/class/permissions.class.php';
 
 $currentUser = User::current();
 if (!$currentUser) {
-    header('Location: /redirect.php?destination=login&message=' . urlencode('You\'re Not Logged In...'));
+    header('Location: /marcus/seemus/redirect.php?destination=login&message=' . urlencode('You\'re Not Logged In...'));
     exit();
 }
 ?>
@@ -25,18 +25,18 @@ $viewingContentUUID = filter_var(
     ]
 );
 if (!$viewingContentUUID) {
-    header('Location: /redirect.php');
+    header('Location: /marcus/seemus/redirect.php');
     exit();
 }
 
 $viewingContent = Content::fromUUID($viewingContentUUID);
 if (!$viewingContent) {
-    header('Location: /redirect.php');
+    header('Location: /marcus/seemus/redirect.php');
     exit();
 } else if (!$currentUser->isAdministrator()) {
     $permissions = Permissions::between($currentUser, $viewingContent);
     if (!($permissions && $permissions->canRead())) {
-        header('Location: /redirect.php?message=' . urlencode('You\'re Not Permitted...'));
+        header('Location: /marcus/seemus/redirect.php?message=' . urlencode('You\'re Not Permitted...'));
         exit();
     }
 }
@@ -68,14 +68,14 @@ if (!$viewingContent) {
             <li>Archived</li>
             <?php endif ?>
         </ul>
-        <a class="btn btn-primary" href="/content/view.php?uuid=<?= urlencode($viewingContent->getUUID()) ?>">
+        <a class="btn btn-primary" href="/marcus/seemus/content/view.php?uuid=<?= urlencode($viewingContent->getUUID()) ?>">
             View
         </a>
-        <a class="btn btn-primary" href="/content/edit.php?uuid=<?= urlencode($viewingContent->getUUID()) ?>">
+        <a class="btn btn-primary" href="/marcus/seemus/content/edit.php?uuid=<?= urlencode($viewingContent->getUUID()) ?>">
             Edit
         </a>
         <?php if (!$viewingContent->isArchived()): ?>
-        <a class="btn btn-warning" href="/content/archive.php?uuid=<?= urlencode($viewingContent->getUUID()) ?>">
+        <a class="btn btn-warning" href="/marcus/seemus/content/archive.php?uuid=<?= urlencode($viewingContent->getUUID()) ?>">
             Archive
         </a>
         <a class="btn btn-warning disabled" aria-disabled="true" tabindex="-1">
@@ -88,10 +88,10 @@ if (!$viewingContent) {
         <a class="btn btn-warning disabled" aria-disabled="true" tabindex="-1">
             Archive
         </a>
-        <a class="btn btn-warning" href="/content/unarchive.php?uuid=<?= urlencode($viewingContent->getUUID()) ?>">
+        <a class="btn btn-warning" href="/marcus/seemus/content/unarchive.php?uuid=<?= urlencode($viewingContent->getUUID()) ?>">
             Unarchive
         </a>
-        <a class="btn btn-danger" href="/content/delete.php?uuid=<?= urlencode($viewingContent->getUUID()) ?>">
+        <a class="btn btn-danger" href="/marcus/seemus/content/delete.php?uuid=<?= urlencode($viewingContent->getUUID()) ?>">
             Delete
         </a>
         <?php endif ?>
@@ -100,5 +100,5 @@ if (!$viewingContent) {
 </html>
 <?php break ?>
 <?php default: ?>
-<?php header('Location: /redirect.php'); ?>
+<?php header('Location: /marcus/seemus/redirect.php'); ?>
 <?php endswitch ?>

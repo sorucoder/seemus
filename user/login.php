@@ -53,7 +53,7 @@ require_once $_SERVER['ROOT_PATH'] . '/class/user.class.php';
         <h2 class="my-3">Log in</h2>
         <p class="lead my-3">to continue to Seemus.</p>
         
-        <form id="loginForm" class="needs-validation" action="/user/login.php" method="POST" novalidate>
+        <form id="loginForm" class="needs-validation" action="/marcus/seemus/user/login.php" method="POST" novalidate>
             <div class="form-floating my-3">
                 <input id="emailInput" class="form-control" type="email" name="email" placeholder required aria-describedby="#emailFeedback" />
                 <label class="form-label" for="emailInput">Email</label>
@@ -77,19 +77,19 @@ require_once $_SERVER['ROOT_PATH'] . '/class/user.class.php';
 try {
     User::login($_POST['email'], $_POST['password']);
 } catch (UserLoggedInException $exception) {
-    header('Location: /');
+    header('Location: /marcus/seemus/');
     exit();
 } catch (InvalidUserCredentialsException $exception) {
-    header('Location: /user/login.php?error=credentials');
+    header('Location: /marcus/seemus/user/login.php?error=credentials');
     exit();
 } catch (UserArchivedException $exception) {
-    header('Location: /user/login.php?error=archived');
+    header('Location: /marcus/seemus/user/login.php?error=archived');
     exit();
 }
-header('Location: /');
+header('Location: /marcus/seemus/');
 ?>
 <?php break; ?>
 <?php default: ?>
-<?php header('Location: /redirect.php') ?>
+<?php header('Location: /marcus/seemus/redirect.php') ?>
 <?php break; ?>
 <?php endswitch ?>

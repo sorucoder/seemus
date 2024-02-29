@@ -5,7 +5,7 @@ require_once $_SERVER['ROOT_PATH'] . '/class/user.class.php';
 
 $currentUser = User::current();
 if (!$currentUser) {
-    header('Location: /redirect.php?destination=login&message=' . urlencode('You\'re Not Logged In...'));
+    header('Location: /marcus/seemus/redirect.php?destination=login&message=' . urlencode('You\'re Not Logged In...'));
     exit();
 }
 ?>
@@ -29,10 +29,10 @@ if ($editingUserUUID) {
 }
 
 if (!$currentUser->isAdministrator() && !$currentUser->is($editingUser)) {
-    header('Location: /user/edit.php?uuid=' . urlencode($currentUser->getUUID()));
+    header('Location: /marcus/seemus/user/edit.php?uuid=' . urlencode($currentUser->getUUID()));
     exit();
 } else if ($editingUser->isArchived()) {
-    header('Location: /redirect.php?message=' . urlencode('This User is Archived...'));
+    header('Location: /marcus/seemus/redirect.php?message=' . urlencode('This User is Archived...'));
     exit();
 }
 
@@ -57,7 +57,7 @@ $errors = $_GET['errors'] ?? [];
             <?php endif ?>
         </h2>
         
-        <form id="editUserForm" class="needs-validation" action="/user/edit.php" method="POST" novalidate>
+        <form id="editUserForm" class="needs-validation" action="/marcus/seemus/user/edit.php" method="POST" novalidate>
             <input type="hidden" name="uuid" value="<?= htmlspecialchars($editingUser->getUUID()) ?>" />
             <div class="form-floating my-3">
                 <?php if (isset($errors['name-missing'])): ?>
@@ -166,7 +166,7 @@ $errors = $_GET['errors'] ?? [];
             <?php if ($currentUser->is($editingUser)): ?>
             <a class="btn btn-danger" href="/">Cancel</a>
             <?php else: ?>
-            <a class="btn btn-danger" href="/user/view.php?uuid=<?= urlencode($editingUser->getUUID()) ?>">Cancel</a>
+            <a class="btn btn-danger" href="/marcus/seemus/user/view.php?uuid=<?= urlencode($editingUser->getUUID()) ?>">Cancel</a>
             <?php endif ?>
         </form>
 
@@ -194,7 +194,7 @@ $editingUser = $currentUser;
 if ($editingUserUUID) {
     $editingUser = User::fromUUID($editingUserUUID);
     if (!$editingUser) {
-        header('Location: /redirect.php');
+        header('Location: /marcus/seemus/redirect.php');
         exit();
     }
 }
@@ -203,13 +203,13 @@ if (!empty($_POST['name'])) {
     try {
         $editingUser->changeName($_POST['name']);
     } catch (UserNotLoggedInException $exception) {
-        header('Location: /redirect.php?destination=login&message=' . urlencode('You\'re Not Logged In...'));
+        header('Location: /marcus/seemus/redirect.php?destination=login&message=' . urlencode('You\'re Not Logged In...'));
         exit();
     } catch (UserNotPermittedException $exception) {
-        header('Location: /redirect.php?message=' . urlencode('You\'re Not Permitted...'));
+        header('Location: /marcus/seemus/redirect.php?message=' . urlencode('You\'re Not Permitted...'));
         exit();
     } catch (UserArchivedException $exception) {
-        header('Location: /redirect.php?message=' . urlencode('This User is Archived...'));
+        header('Location: /marcus/seemus/redirect.php?message=' . urlencode('This User is Archived...'));
         exit();
     } catch (InvalidUserDataException $exception) {
         $errors []= 'errors[name-invalid]=' . urlencode($_POST['name']);
@@ -222,13 +222,13 @@ if (!empty($_POST['email'])) {
     try {
         $editingUser->changeEmail($_POST['email']);
     } catch (UserNotLoggedInException $exception) {
-        header('Location: /redirect.php?destination=login&message=' . urlencode('You\'re Not Logged In...'));
+        header('Location: /marcus/seemus/redirect.php?destination=login&message=' . urlencode('You\'re Not Logged In...'));
         exit();
     } catch (UserNotPermittedException $exception) {
-        header('Location: /redirect.php?message=' . urlencode('You\'re Not Permitted...'));
+        header('Location: /marcus/seemus/redirect.php?message=' . urlencode('You\'re Not Permitted...'));
         exit();
     } catch (UserArchivedException $exception) {
-        header('Location: /redirect.php?message=' . urlencode('This User is Archived...'));
+        header('Location: /marcus/seemus/redirect.php?message=' . urlencode('This User is Archived...'));
         exit();
     } catch (InvalidUserDataException $exception) {
         $errors []= 'errors[email-invalid]=' . urlencode($_POST['email']);
@@ -241,13 +241,13 @@ if (!empty($_POST['role'])) {
     try {
         $editingUser->changeRole($_POST['role']);
     } catch (UserNotLoggedInException $exception) {
-        header('Location: /redirect.php?destination=login&message=' . urlencode('You\'re Not Logged In...'));
+        header('Location: /marcus/seemus/redirect.php?destination=login&message=' . urlencode('You\'re Not Logged In...'));
         exit();
     } catch (UserNotPermittedException $exception) {
-        header('Location: /redirect.php?message=' . urlencode('You\'re Not Permitted...'));
+        header('Location: /marcus/seemus/redirect.php?message=' . urlencode('You\'re Not Permitted...'));
         exit();
     } catch (UserArchivedException $exception) {
-        header('Location: /redirect.php?message=' . urlencode('This User is Archived...'));
+        header('Location: /marcus/seemus/redirect.php?message=' . urlencode('This User is Archived...'));
         exit();
     } catch (InvalidUserDataException $exception) {
         $errors []= 'errors[role-invalid]=' . urlencode($_POST['role']);
@@ -274,13 +274,13 @@ if (!empty($_POST['oldPassword'])) {
         try {
             $editingUser->changePassword($_POST['oldPassword'], $_POST['newPassword']);
         } catch (UserNotLoggedInException $exception) {
-            header('Location: /redirect.php?destination=login&message=' . urlencode('You\'re Not Logged In...'));
+            header('Location: /marcus/seemus/redirect.php?destination=login&message=' . urlencode('You\'re Not Logged In...'));
             exit();
         } catch (UserNotPermittedException $exception) {
-            header('Location: /redirect.php?message=' . urlencode('You\'re Not Permitted...'));
+            header('Location: /marcus/seemus/redirect.php?message=' . urlencode('You\'re Not Permitted...'));
             exit();
         } catch (UserArchivedException $exception) {
-            header('Location: /redirect.php?message=' . urlencode('This User is Archived...'));
+            header('Location: /marcus/seemus/redirect.php?message=' . urlencode('This User is Archived...'));
             exit();
         } catch (InvalidUserCredentialsException $exception) {
             $errors []= 'errors[old-password-invalid]=true';
@@ -289,19 +289,19 @@ if (!empty($_POST['oldPassword'])) {
 }
 
 if (!empty($errors)) {
-    header('Location: /user/edit.php?uuid=' . urlencode($editingUser->getUUID()) . '&' . implode('&', $errors));
+    header('Location: /marcus/seemus/user/edit.php?uuid=' . urlencode($editingUser->getUUID()) . '&' . implode('&', $errors));
     exit();
 }
 
 if ($currentUser->is($editingUser)) {
-    header('Location: /');
+    header('Location: /marcus/seemus/');
 } else if ($currentUser->isAdministrator()) {
-    header('Location: /user/view.php?uuid=' . urlencode($editingUser->getUUID()));
+    header('Location: /marcus/seemus/user/view.php?uuid=' . urlencode($editingUser->getUUID()));
 } else {
-    header('Location: /');
+    header('Location: /marcus/seemus/');
 }
 ?>
 <?php break ?>
 <?php default: ?>
-<?php header('Location: /redirect.php'); ?>
+<?php header('Location: /marcus/seemus/redirect.php'); ?>
 <?php endswitch ?>

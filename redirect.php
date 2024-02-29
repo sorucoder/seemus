@@ -5,19 +5,19 @@ $message = $_GET['message'] ?? 'Something Went Wrong...';
 
 $destination = match ($_GET['destination']) {
     'login' => [
-        'url' => '/user/login.php',
+        'url' => '/marcus/seemus/user/login.php',
         'name' => 'Login'
     ],
     'users' => [
-        'url' => '/user/view.php',
+        'url' => '/marcus/seemus/user/view.php',
         'name' => 'Users'
     ],
     'content' => [
-        'url' => '/content/view.php',
+        'url' => '/marcus/seemus/content/view.php',
         'name' => 'Content'
     ],
     default => [
-        'url' => '/',
+        'url' => '/marcus/seemus/',
         'name' => 'Home'
     ]
 };

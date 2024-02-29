@@ -5,10 +5,10 @@ require_once $_SERVER['ROOT_PATH'] . '/class/user.class.php';
 
 $currentUser = User::current();
 if (!$currentUser) {
-    header('Location: /redirect.php?destination=login&message=' . urlencode('You\'re Not Logged In...'));
+    header('Location: /marcus/seemus/redirect.php?destination=login&message=' . urlencode('You\'re Not Logged In...'));
     exit();
 } else if (!$currentUser->isAdministrator()) {
-    header('Location: /redirect.php?message=' . urlencode('You\'re Not Permitted...'));
+    header('Location: /marcus/seemus/redirect.php?message=' . urlencode('You\'re Not Permitted...'));
     exit();
 }
 ?>
@@ -26,19 +26,19 @@ $unarchivingUserUUID = filter_var(
     ]
 );
 if (!$unarchivingUserUUID) {
-    header('Location: /redirect.php');
+    header('Location: /marcus/seemus/redirect.php');
     exit();
 }
 
 $unarchivingUser = User::fromUUID($unarchivingUserUUID);
 if (!$unarchivingUser) {
-    header('Location: /redirect.php');
+    header('Location: /marcus/seemus/redirect.php');
     exit();
 } else if ($unarchivingUser->is($currentUser)) {
-    header('Location: /redirect.php?message=' . urlencode('You\'re Not Permitted...'));
+    header('Location: /marcus/seemus/redirect.php?message=' . urlencode('You\'re Not Permitted...'));
     exit();
 } else if (!$unarchivingUser->isArchived()) {
-    header('Location: /redirect.php?destination=users&message=' . urlencode('This User is Unarchived...'));
+    header('Location: /marcus/seemus/redirect.php?destination=users&message=' . urlencode('This User is Unarchived...'));
     exit();
 }
 ?>
@@ -55,10 +55,10 @@ if (!$unarchivingUser) {
     <main class="container">
         <h2 class="my-3">You're About to Unarchive <?= htmlspecialchars($unarchivingUser->getName('first')) ?>...</h2>
         <p class="lead">Are you sure you want to do that?</p>
-        <form id="unarchiveUserForm" action="/user/unarchive.php" method="POST">
+        <form id="unarchiveUserForm" action="/marcus/seemus/user/unarchive.php" method="POST">
             <input type="hidden" name="uuid" value="<?= htmlspecialchars($unarchivingUser->getUUID()) ?>" />
             <button class="btn btn-success" type="submit">Yes</button>
-            <a class="btn btn-danger" href="/user/view.php?<?= urlencode($unarchivingUser->getUUID()) ?>">No</a>
+            <a class="btn btn-danger" href="/marcus/seemus/user/view.php?<?= urlencode($unarchivingUser->getUUID()) ?>">No</a>
         </form>
     </main>
 </body>
@@ -78,7 +78,7 @@ $unarchivingUserUUID = filter_var(
 );
 
 if (!$unarchivingUserUUID) {
-    header('Location: /redirect.php');
+    header('Location: /marcus/seemus/redirect.php');
     exit();
 }
 
@@ -87,19 +87,19 @@ $unarchivingUser = User::fromUUID($unarchivingUserUUID);
 try {
     $unarchivingUser->unarchive();
 } catch (UserNotLoggedInException $exception) {
-    header('Location: /redirect.php?destination=login&message=' . urlencode('You\'re Not Logged In...'));
+    header('Location: /marcus/seemus/redirect.php?destination=login&message=' . urlencode('You\'re Not Logged In...'));
     exit();
 } catch (UserNotPermittedException $exception) {
-    header('Location: /redirect.php?message=' . urlencode('You\'re Not Permitted...'));
+    header('Location: /marcus/seemus/redirect.php?message=' . urlencode('You\'re Not Permitted...'));
     exit();
 } catch (UserNotArchivedException $exception) {
-    header('Location: /redirect.php?destination=users&message=' . urlencode('This User is Not Archived...'));
+    header('Location: /marcus/seemus/redirect.php?destination=users&message=' . urlencode('This User is Not Archived...'));
     exit();
 }
 
-header('Location: /user/view.php?uuid=' . urlencode($unarchivingUser->getUUID()));
+header('Location: /marcus/seemus/user/view.php?uuid=' . urlencode($unarchivingUser->getUUID()));
 ?>
 <?php break ?>
 <?php default: ?>
-<?php header('Location: /redirect.php'); ?>
+<?php header('Location: /marcus/seemus/redirect.php'); ?>
 <?php endswitch ?>

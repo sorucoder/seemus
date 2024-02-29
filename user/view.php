@@ -5,10 +5,10 @@ require_once $_SERVER['ROOT_PATH'] . '/class/user.class.php';
 
 $currentUser = User::current();
 if (!$currentUser) {
-    header('Location: /redirect.php?destination=login&message=' . urlencode('You\'re Not Logged In...'));
+    header('Location: /marcus/seemus/redirect.php?destination=login&message=' . urlencode('You\'re Not Logged In...'));
     exit();
 } else if (!$currentUser->isAdministrator()) {
-    header('Location: /redirect.php?message=' . urlencode('You\'re Not Permitted...'));
+    header('Location: /marcus/seemus/redirect.php?message=' . urlencode('You\'re Not Permitted...'));
     exit();
 }
 ?>
@@ -73,29 +73,29 @@ if ($viewingUserUUID) {
             <?php endif ?>
         </ul>
         <?php if (!$viewingUser->isArchived()): ?>
-        <a class="btn btn-primary" href="/user/edit.php?uuid=<?= urlencode($viewingUser->getUUID()) ?>">
+        <a class="btn btn-primary" href="/marcus/seemus/user/edit.php?uuid=<?= urlencode($viewingUser->getUUID()) ?>">
             Edit
         </a>
-        <a class="btn btn-warning" href="/user/archive.php?uuid=<?= urlencode($viewingUser->getUUID()) ?>">
+        <a class="btn btn-warning" href="/marcus/seemus/user/archive.php?uuid=<?= urlencode($viewingUser->getUUID()) ?>">
             Archive
         </a>
         <a class="btn btn-warning disabled" aria-disabled="true" tabindex="-1">
             Unarchive
         </a>
         <?php else: ?>
-        <a class="btn btn-primary disabled" href="/user/edit.php?uuid=<?= urlencode($viewingUser->getUUID()) ?>" aria-disabled="true" tabindex="-1">
+        <a class="btn btn-primary disabled" href="/marcus/seemus/user/edit.php?uuid=<?= urlencode($viewingUser->getUUID()) ?>" aria-disabled="true" tabindex="-1">
             Edit
         </a>
         <a class="btn btn-warning disabled" aria-disabled="true" tabindex="-1">
             Archive
         </a>
-        <a class="btn btn-warning" href="/user/unarchive.php?uuid=<?= urlencode($viewingUser->getUUID()) ?>">
+        <a class="btn btn-warning" href="/marcus/seemus/user/unarchive.php?uuid=<?= urlencode($viewingUser->getUUID()) ?>">
             Unarchive
         </a>
         <?php endif ?>
         <?php else: ?>
         <h2 class="my-3">Users</h2>
-        <a class="btn btn-primary" href="/user/create.php">Create</a>
+        <a class="btn btn-primary" href="/marcus/seemus/user/create.php">Create</a>
         <table class="table table-hover align-middle my-3">
             <thead>
                 <tr>
@@ -111,27 +111,27 @@ if ($viewingUserUUID) {
                     <td><?= htmlspecialchars($user->getUUID()) ?></td>
                     <td><?= htmlspecialchars($user->getName()) ?></td>
                     <td>
-                        <a class="btn btn-info" href="/user/view.php?uuid=<?= urlencode($user->getUUID()) ?>">
+                        <a class="btn btn-info" href="/marcus/seemus/user/view.php?uuid=<?= urlencode($user->getUUID()) ?>">
                             View
                         </a>
                         <?php if (!$user->isArchived()): ?>
-                        <a class="btn btn-primary" href="/user/edit.php?uuid=<?= urlencode($user->getUUID()) ?>">
+                        <a class="btn btn-primary" href="/marcus/seemus/user/edit.php?uuid=<?= urlencode($user->getUUID()) ?>">
                             Edit
                         </a>
-                        <a class="btn btn-warning" href="/user/archive.php?uuid=<?= urlencode($user->getUUID()) ?>">
+                        <a class="btn btn-warning" href="/marcus/seemus/user/archive.php?uuid=<?= urlencode($user->getUUID()) ?>">
                             Archive
                         </a>
                         <a class="btn btn-warning disabled" aria-disabled="true" tabindex="-1">
                             Unarchive
                         </a>
                         <?php else: ?>
-                        <a class="btn btn-primary disabled" href="/user/edit.php?uuid=<?= urlencode($user->getUUID()) ?>" aria-disabled="true" tabindex="-1">
+                        <a class="btn btn-primary disabled" href="/marcus/seemus/user/edit.php?uuid=<?= urlencode($user->getUUID()) ?>" aria-disabled="true" tabindex="-1">
                             Edit
                         </a>
                         <a class="btn btn-warning disabled" aria-disabled="true" tabindex="-1">
                             Archive
                         </a>
-                        <a class="btn btn-warning" href="/user/unarchive.php?uuid=<?= urlencode($user->getUUID()) ?>">
+                        <a class="btn btn-warning" href="/marcus/seemus/user/unarchive.php?uuid=<?= urlencode($user->getUUID()) ?>">
                             Unarchive
                         </a>
                         <?php endif ?>
@@ -147,5 +147,5 @@ if ($viewingUserUUID) {
 </html>
 <?php break ?>
 <?php default: ?>
-<?php header('Location: /redirect.php'); ?>
+<?php header('Location: /marcus/seemus/redirect.php'); ?>
 <?php endswitch ?>

@@ -7,7 +7,7 @@ require_once $_SERVER['ROOT_PATH'] . '/class/permissions.class.php';
 
 $currentUser = User::current();
 if (!$currentUser) {
-    header('Location: /redirect.php?destination=login&message=' . urlencode('You\'re Not Logged In...'));
+    header('Location: /marcus/seemus/redirect.php?destination=login&message=' . urlencode('You\'re Not Logged In...'));
     exit();
 }
 ?>
@@ -25,18 +25,18 @@ $editingContentUUID = filter_var(
     ]
 );
 if (!$editingContentUUID) {
-    header('Location: /redirect.php');
+    header('Location: /marcus/seemus/redirect.php');
     exit();
 }
 
 $editingContent = Content::fromUUID($editingContentUUID);
 if (!$editingContent) {
-    header('Location: /redirect.php');
+    header('Location: /marcus/seemus/redirect.php');
     exit();
 } else if (!$currentUser->isAdministrator()) {
     $permissions = Permissions::between($currentUser, $editingContent);
     if (!($permissions && $permissions->canWrite())) {
-        header('Location: /redirect.php?message=' . urlencode('You\'re Not Permitted...'));
+        header('Location: /marcus/seemus/redirect.php?message=' . urlencode('You\'re Not Permitted...'));
         exit();
     }
 }
@@ -56,7 +56,7 @@ $errors = $_GET['errors'] ?? [];
     <main class="container">
         <h2 class="my-3">Edit "<?= htmlspecialchars($editingContent->getTitle()) ?>"</h2>
         
-        <form id="editContentForm" class="needs-validation" action="/content/edit.php" method="POST" novalidate>
+        <form id="editContentForm" class="needs-validation" action="/marcus/seemus/content/edit.php" method="POST" novalidate>
             <input type="hidden" name="uuid" value="<?= htmlspecialchars($editingContent->getUUID()) ?>" />
             <div class="form-floating my-3">
                 <?php if (isset($errors['title-missing'])): ?>
@@ -104,7 +104,7 @@ $errors = $_GET['errors'] ?? [];
                 <?php endif ?>
             </div>
             <button class="btn btn-success" type="submit">Create</button>
-            <a class="btn btn-danger" href="/content/view.php">Cancel</a>
+            <a class="btn btn-danger" href="/marcus/seemus/content/view.php">Cancel</a>
         </form>
 
         <!-- Implement client-side validation -->
@@ -127,7 +127,7 @@ $editingContentUUID = filter_var(
     ]
 );
 if (!$editingContentUUID) {
-    header('Location: /redirect.php');
+    header('Location: /marcus/seemus/redirect.php');
     exit();
 }
 
@@ -137,10 +137,10 @@ if (!empty($_POST['title'])) {
     try {
         $editingContent->changeTitle($_POST['title']);
     } catch (UserNotLoggedInException $exception) {
-        header('Location: /redirect.php?destination=login&message=' . urlencode('You\'re Not Logged In...'));
+        header('Location: /marcus/seemus/redirect.php?destination=login&message=' . urlencode('You\'re Not Logged In...'));
         exit();
     } catch (UserNotPermittedException $exception) {
-        header('Location: /redirect.php?message=' . urlencode('You\'re Not Permitted...'));
+        header('Location: /marcus/seemus/redirect.php?message=' . urlencode('You\'re Not Permitted...'));
         exit();
     } catch (InvalidContentDataException $exception) {
         $errors []= 'errors[title-invalid]=true';
@@ -153,10 +153,10 @@ if (!empty($_POST['description'])) {
     try {
         $editingContent->changeDescription($_POST['description']);
     } catch (UserNotLoggedInException $exception) {
-        header('Location: /redirect.php?destination=login&message=' . urlencode('You\'re Not Logged In...'));
+        header('Location: /marcus/seemus/redirect.php?destination=login&message=' . urlencode('You\'re Not Logged In...'));
         exit();
     } catch (UserNotPermittedException $exception) {
-        header('Location: /redirect.php?message=' . urlencode('You\'re Not Permitted...'));
+        header('Location: /marcus/seemus/redirect.php?message=' . urlencode('You\'re Not Permitted...'));
         exit();
     } catch (InvalidContentDataException $exception) {
         $errors []= 'errors[description-invalid]=true';
@@ -169,10 +169,10 @@ if (!empty($_POST['body'])) {
     try {
         $editingContent->changeBody($_POST['body']);
     } catch (UserNotLoggedInException $exception) {
-        header('Location: /redirect.php?destination=login&message=' . urlencode('You\'re Not Logged In...'));
+        header('Location: /marcus/seemus/redirect.php?destination=login&message=' . urlencode('You\'re Not Logged In...'));
         exit();
     } catch (UserNotPermittedException $exception) {
-        header('Location: /redirect.php?message=' . urlencode('You\'re Not Permitted...'));
+        header('Location: /marcus/seemus/redirect.php?message=' . urlencode('You\'re Not Permitted...'));
         exit();
     } catch (InvalidContentDataException $exception) {
         $errors []= 'errors[body-invalid]=true';
@@ -182,12 +182,12 @@ if (!empty($_POST['body'])) {
 }
 
 if (empty($errors)) {
-    header('Location: /content/view.php?uuid=' . urlencode($editingContent->getUUID()));
+    header('Location: /marcus/seemus/content/view.php?uuid=' . urlencode($editingContent->getUUID()));
 } else {
-    header('Location: /content/edit.php?uuid=' . urlencode($editingContent->getUUID()) . '&' . implode('&', $errors));
+    header('Location: /marcus/seemus/content/edit.php?uuid=' . urlencode($editingContent->getUUID()) . '&' . implode('&', $errors));
 }
 ?>
 <?php break ?>
 <?php default: ?>
-<?php header('Location: /redirect.php'); ?>
+<?php header('Location: /marcus/seemus/redirect.php'); ?>
 <?php endswitch ?>

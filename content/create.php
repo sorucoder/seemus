@@ -6,7 +6,7 @@ require_once $_SERVER['ROOT_PATH'] . '/class/content.class.php';
 
 $currentUser = User::current();
 if (!$currentUser) {
-    header('Location: /redirect.php?destination=login&message=' . urlencode('You\'re Not Logged In...'));
+    header('Location: /marcus/seemus/redirect.php?destination=login&message=' . urlencode('You\'re Not Logged In...'));
     exit();
 }
 ?>
@@ -36,7 +36,7 @@ if (!$currentUser) {
     <main class="container">
         <h2 class="my-3">Create New Content</h2>
         
-        <form id="createContentForm" class="needs-validation" action="/content/create.php" method="POST" novalidate>
+        <form id="createContentForm" class="needs-validation" action="/marcus/seemus/content/create.php" method="POST" novalidate>
             <div class="form-floating my-3">
                 <?php if (isset($errors['title-missing'])): ?>
                 <input id="titleInput" class="form-control is-invalid" type="text" name="title" placeholder required aria-describedby="#titleFeedback" />
@@ -83,7 +83,7 @@ if (!$currentUser) {
                 <?php endif ?>
             </div>
             <button class="btn btn-success" type="submit">Create</button>
-            <a class="btn btn-danger" href="/content/view.php">Cancel</a>
+            <a class="btn btn-danger" href="/marcus/seemus/content/view.php">Cancel</a>
         </form>
 
         <!-- Implement client-side validation -->
@@ -116,7 +116,7 @@ if (empty($errors)) {
             $_POST['body']
         );
     } catch (UserNotLoggedInException $exception) {
-        header('Location: /redirect.php?destination=login&message=' . urlencode('You\'re Not Logged In...'));
+        header('Location: /marcus/seemus/redirect.php?destination=login&message=' . urlencode('You\'re Not Logged In...'));
         exit();
     } catch (InvalidContentDataException $exception) {
         $invalidFields = $exception->getInvalidFields();
@@ -130,12 +130,12 @@ if (empty($errors)) {
             $errors []= 'errors[invalid-body]=true';
         }
     }
-    header('Location: /content/details.php?uuid=' . urlencode($creatingContent->getUUID()));
+    header('Location: /marcus/seemus/content/details.php?uuid=' . urlencode($creatingContent->getUUID()));
 } else {
-    header('Location: /content/create.php?' . implode('&', $errors));
+    header('Location: /marcus/seemus/content/create.php?' . implode('&', $errors));
 }
 ?>
 <?php break ?>
 <?php default: ?>
-<?php header('Location: /redirect.php'); ?>
+<?php header('Location: /marcus/seemus/redirect.php'); ?>
 <?php endswitch ?>

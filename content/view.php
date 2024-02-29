@@ -24,14 +24,14 @@ $viewingContent = NULL;
 if ($viewingContentUUID) {
     $viewingContent = Content::fromUUID($viewingContentUUID);
     if (!$viewingContent) {
-        header('Location: /redirect.php');
+        header('Location: /marcus/seemus/redirect.php');
         exit();
     }
 
     if ($currentUser && !$currentUser->isAdministrator()) {
         $permissions = Permissions::between($currentUser, $viewingContent);
         if (!($permissions && $permissions->canRead())) {
-            header('Location: /redirect.php?message=' . urlencode('You\'re Not Permitted...'));
+            header('Location: /marcus/seemus/redirect.php?message=' . urlencode('You\'re Not Permitted...'));
             exit();
         }
     }
@@ -54,7 +54,7 @@ if ($viewingContentUUID) {
 <?php
 $currentUser = User::current();
 if (!$currentUser) {
-    header('Location: /redirect.php?destination=login&message=' . urlencode('You\'re Not Logged In...'));
+    header('Location: /marcus/seemus/redirect.php?destination=login&message=' . urlencode('You\'re Not Logged In...'));
     exit();
 }
 ?>
@@ -71,7 +71,7 @@ if (!$currentUser) {
     <main class="container">
         <?php if ($currentUser->isAdministrator()): ?>
         <h2 class="my-3">Content</h2>
-        <a class="btn btn-primary" href="/content/create.php">Create</a>
+        <a class="btn btn-primary" href="/marcus/seemus/content/create.php">Create</a>
         <table class="table table-hover align-middle my-3">
             <thead>
                 <tr>
@@ -88,7 +88,7 @@ if (!$currentUser) {
                     <td><?= htmlspecialchars($content->getTitle()) ?></td>
                     <td>
                         <?php if (!$content->getAuthor()->is($currentUser)): ?>
-                        <a href="/user/view.php?uuid=<?= urlencode($content->getAuthor()->getUUID()) ?>">
+                        <a href="/marcus/seemus/user/view.php?uuid=<?= urlencode($content->getAuthor()->getUUID()) ?>">
                             <?= htmlspecialchars($content->getAuthor()->getName()) ?>
                         </a>
                         <?php else: ?>
@@ -96,17 +96,17 @@ if (!$currentUser) {
                         <?php endif ?>
                     </td>
                     <td>
-                        <a class="btn btn-primary" href="/content/view.php?uuid=<?= urlencode($content->getUUID()) ?>">
+                        <a class="btn btn-primary" href="/marcus/seemus/content/view.php?uuid=<?= urlencode($content->getUUID()) ?>">
                             View
                         </a>
-                        <a class="btn btn-info" href="/content/details.php?uuid=<?= urlencode($content->getUUID()) ?>">
+                        <a class="btn btn-info" href="/marcus/seemus/content/details.php?uuid=<?= urlencode($content->getUUID()) ?>">
                             Details
                         </a>
-                        <a class="btn btn-primary" href="/content/edit.php?uuid=<?= urlencode($content->getUUID()) ?>">
+                        <a class="btn btn-primary" href="/marcus/seemus/content/edit.php?uuid=<?= urlencode($content->getUUID()) ?>">
                             Edit
                         </a>
                         <?php if (!$content->isArchived()): ?>
-                        <a class="btn btn-warning" href="/content/archive.php?uuid=<?= urlencode($content->getUUID()) ?>">
+                        <a class="btn btn-warning" href="/marcus/seemus/content/archive.php?uuid=<?= urlencode($content->getUUID()) ?>">
                             Archive
                         </a>
                         <a class="btn btn-warning disabled" aria-disabled="true" tabindex="-1">
@@ -119,10 +119,10 @@ if (!$currentUser) {
                         <a class="btn btn-warning disabled" aria-disabled="true" tabindex="-1">
                             Archive
                         </a>
-                        <a class="btn btn-warning" href="/content/unarchive.php?uuid=<?= urlencode($content->getUUID()) ?>">
+                        <a class="btn btn-warning" href="/marcus/seemus/content/unarchive.php?uuid=<?= urlencode($content->getUUID()) ?>">
                             Unarchive
                         </a>
-                        <a class="btn btn-danger" href="/content/delete.php?uuid=<?= urlencode($content->getUUID()) ?>">
+                        <a class="btn btn-danger" href="/marcus/seemus/content/delete.php?uuid=<?= urlencode($content->getUUID()) ?>">
                             Delete
                         </a>
                         <?php endif ?>
@@ -133,7 +133,7 @@ if (!$currentUser) {
         </table>
         <?php else: ?>
         <h2 class="my-3">Your Content</h2>
-        <a class="btn btn-primary" href="/content/create.php">Create</a>
+        <a class="btn btn-primary" href="/marcus/seemus/content/create.php">Create</a>
         <table class="table table-hover align-middle">
             <thead>
                 <tr>
@@ -148,17 +148,17 @@ if (!$currentUser) {
                     <td><?= htmlspecialchars($content->getUUID()) ?></td>
                     <td><?= htmlspecialchars($content->getTitle()) ?></td>
                     <td>
-                        <a class="btn btn-primary" href="/content/view.php?uuid=<?= urlencode($content->getUUID()) ?>">
+                        <a class="btn btn-primary" href="/marcus/seemus/content/view.php?uuid=<?= urlencode($content->getUUID()) ?>">
                             View
                         </a>
-                        <a class="btn btn-info" href="/content/details.php?uuid=<?= urlencode($content->getUUID()) ?>">
+                        <a class="btn btn-info" href="/marcus/seemus/content/details.php?uuid=<?= urlencode($content->getUUID()) ?>">
                             Details
                         </a>
-                        <a class="btn btn-primary" href="/content/edit.php?uuid=<?= urlencode($content->getUUID()) ?>">
+                        <a class="btn btn-primary" href="/marcus/seemus/content/edit.php?uuid=<?= urlencode($content->getUUID()) ?>">
                             Edit
                         </a>
                         <?php if (!$content->isArchived()): ?>
-                        <a class="btn btn-warning" href="/content/archive.php?uuid=<?= urlencode($content->getUUID()) ?>">
+                        <a class="btn btn-warning" href="/marcus/seemus/content/archive.php?uuid=<?= urlencode($content->getUUID()) ?>">
                             Archive
                         </a>
                         <a class="btn btn-warning disabled" aria-disabled="true" tabindex="-1">
@@ -171,10 +171,10 @@ if (!$currentUser) {
                         <a class="btn btn-warning disabled" aria-disabled="true" tabindex="-1">
                             Archive
                         </a>
-                        <a class="btn btn-warning" href="/content/unarchive.php?uuid=<?= urlencode($content->getUUID()) ?>">
+                        <a class="btn btn-warning" href="/marcus/seemus/content/unarchive.php?uuid=<?= urlencode($content->getUUID()) ?>">
                             Unarchive
                         </a>
-                        <a class="btn btn-danger" href="/content/delete.php?uuid=<?= urlencode($content->getUUID()) ?>">
+                        <a class="btn btn-danger" href="/marcus/seemus/content/delete.php?uuid=<?= urlencode($content->getUUID()) ?>">
                             Delete
                         </a>
                         <?php endif ?>
@@ -190,5 +190,5 @@ if (!$currentUser) {
 <?php endif ?>
 <?php break ?>
 <?php default: ?>
-<?php header('Location: /redirect.php'); ?>
+<?php header('Location: /marcus/seemus/redirect.php'); ?>
 <?php endswitch ?>

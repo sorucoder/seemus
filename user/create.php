@@ -5,10 +5,10 @@ require_once $_SERVER['ROOT_PATH'] . '/class/user.class.php';
 
 $currentUser = User::current();
 if (!$currentUser) {
-    header('Location: /redirect.php?destination=login&message=' . urlencode('You\'re Not Logged In...'));
+    header('Location: /marcus/seemus/redirect.php?destination=login&message=' . urlencode('You\'re Not Logged In...'));
     exit();
 } else if (!$currentUser->isAdministrator()) {
-    header('Location: /redirect.php?message=' . urlencode('You\'re Not Permitted...'));
+    header('Location: /marcus/seemus/redirect.php?message=' . urlencode('You\'re Not Permitted...'));
     exit();
 }
 ?>
@@ -28,7 +28,7 @@ if (!$currentUser) {
     <main class="container">
         <h2 class="my-3">Create New User</h2>
         
-        <form id="createUserForm" class="needs-validation" action="/user/create.php" method="POST" novalidate>
+        <form id="createUserForm" class="needs-validation" action="/marcus/seemus/user/create.php" method="POST" novalidate>
             <div class="form-floating my-3">
                 <?php if (isset($errors['name-missing'])): ?>
                 <input id="nameInput" class="form-control is-invalid" type="text" name="name" placeholder required aria-describedby="#nameFeedback" />
@@ -95,7 +95,7 @@ if (!$currentUser) {
                 <?php endif ?>
             </div>
             <button class="btn btn-success" type="submit">Create</button>
-            <a class="btn btn-danger" href="/user/view.php">Cancel</a>
+            <a class="btn btn-danger" href="/marcus/seemus/user/view.php">Cancel</a>
         </form>
 
         <!-- Implement client-side validation -->
@@ -139,10 +139,10 @@ if (empty($errors)) {
             $_POST['role']
         );
     } catch (UserNotLoggedInException $exception) {
-        header('Location: /redirect.php?destination=login&message=' . urlencode('You\'re Not Logged In...'));
+        header('Location: /marcus/seemus/redirect.php?destination=login&message=' . urlencode('You\'re Not Logged In...'));
         exit();
     } catch (UserNotPermittedException $exception) {
-        header('Location: /redirect.php?message=' . urlencode('You\'re Not Permitted...'));
+        header('Location: /marcus/seemus/redirect.php?message=' . urlencode('You\'re Not Permitted...'));
         exit();
     } catch (InvalidUserDataException $exception) {
         $invalidFields = $exception->getInvalidFields();
@@ -156,12 +156,12 @@ if (empty($errors)) {
             $errors []= 'errors[role-invalid]=' . urlencode($_POST['role']);
         }
     }
-    header('Location: /user/view.php?uuid=' . urlencode($creatingUser->getUUID()));
+    header('Location: /marcus/seemus/user/view.php?uuid=' . urlencode($creatingUser->getUUID()));
 } else {
-    header('Location: /user/create.php?' . implode('&', $errors));
+    header('Location: /marcus/seemus/user/create.php?' . implode('&', $errors));
 }
 ?>
 <?php break ?>
 <?php default: ?>
-<?php header('Location: /redirect.php'); ?>
+<?php header('Location: /marcus/seemus/redirect.php'); ?>
 <?php endswitch ?>
