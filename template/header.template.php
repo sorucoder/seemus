@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-require_once $_SERVER['DOCUMENT_ROOT'] . '/class/user.class.php';
+require_once $_SERVER['ROOT_PATH'] . '/class/user.class.php';
 
 $currentURL = $_SERVER['REQUEST_URI'];
 $currentUser = User::current();

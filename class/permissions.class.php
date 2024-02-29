@@ -1,17 +1,17 @@
 <?php
 declare(strict_types=1);
 
-require_once $_SERVER['DOCUMENT_ROOT'] . '/class/database.class.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/class/user.class.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/class/content.class.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/class/file.class.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/class/audit.class.php';
+require_once $_SERVER['ROOT_PATH'] . '/class/database.class.php';
+require_once $_SERVER['ROOT_PATH'] . '/class/user.class.php';
+require_once $_SERVER['ROOT_PATH'] . '/class/content.class.php';
+require_once $_SERVER['ROOT_PATH'] . '/class/file.class.php';
+require_once $_SERVER['ROOT_PATH'] . '/class/audit.class.php';
 
-require_once $_SERVER['DOCUMENT_ROOT'] . '/class/exception/media/invalid_permissions.exception.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/class/exception/user/user_archived.exception.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/class/exception/user/user_not_logged_in.exception.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/class/exception/user/user_permitted.exception.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/class/exception/user/user_not_permitted.exception.php';
+require_once $_SERVER['ROOT_PATH'] . '/class/exception/media/invalid_permissions.exception.php';
+require_once $_SERVER['ROOT_PATH'] . '/class/exception/user/user_archived.exception.php';
+require_once $_SERVER['ROOT_PATH'] . '/class/exception/user/user_not_logged_in.exception.php';
+require_once $_SERVER['ROOT_PATH'] . '/class/exception/user/user_permitted.exception.php';
+require_once $_SERVER['ROOT_PATH'] . '/class/exception/user/user_not_permitted.exception.php';
 
 final class Permissions {
     private int $id;

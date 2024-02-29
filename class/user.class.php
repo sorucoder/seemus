@@ -1,16 +1,16 @@
 <?php
 declare(strict_types=1);
 
-require_once $_SERVER['DOCUMENT_ROOT'] . '/class/database.class.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/class/audit.class.php';
+require_once $_SERVER['ROOT_PATH'] . '/class/database.class.php';
+require_once $_SERVER['ROOT_PATH'] . '/class/audit.class.php';
 
-require_once $_SERVER['DOCUMENT_ROOT'] . '/class/exception/user/invalid_user_credentials.exception.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/class/exception/user/invalid_user_data.exception.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/class/exception/user/user_archived.exception.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/class/exception/user/user_not_archived.exception.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/class/exception/user/user_logged_in.exception.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/class/exception/user/user_not_logged_in.exception.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/class/exception/user/user_not_permitted.exception.php';
+require_once $_SERVER['ROOT_PATH'] . '/class/exception/user/invalid_user_credentials.exception.php';
+require_once $_SERVER['ROOT_PATH'] . '/class/exception/user/invalid_user_data.exception.php';
+require_once $_SERVER['ROOT_PATH'] . '/class/exception/user/user_archived.exception.php';
+require_once $_SERVER['ROOT_PATH'] . '/class/exception/user/user_not_archived.exception.php';
+require_once $_SERVER['ROOT_PATH'] . '/class/exception/user/user_logged_in.exception.php';
+require_once $_SERVER['ROOT_PATH'] . '/class/exception/user/user_not_logged_in.exception.php';
+require_once $_SERVER['ROOT_PATH'] . '/class/exception/user/user_not_permitted.exception.php';
 
 final class User {
     private int $id;

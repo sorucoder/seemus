@@ -1,24 +1,24 @@
 <?php
 declare(strict_types=1);
 
-require_once $_SERVER['DOCUMENT_ROOT'] . '/class/exception/database/connection.exception.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/class/exception/database/invalid_column_data.exception.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/class/exception/database/invalid_group_by_data.exception.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/class/exception/database/invalid_identifier.exception.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/class/exception/database/invalid_limit_data.exception.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/class/exception/database/invalid_order_by_data.exception.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/class/exception/database/invalid_parameter_data.exception.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/class/exception/database/invalid_table_row_data.exception.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/class/exception/database/invalid_value.exception.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/class/exception/database/unsupported_driver.exception.php';
+require_once $_SERVER['ROOT_PATH'] . '/class/exception/database/connection.exception.php';
+require_once $_SERVER['ROOT_PATH'] . '/class/exception/database/invalid_column_data.exception.php';
+require_once $_SERVER['ROOT_PATH'] . '/class/exception/database/invalid_group_by_data.exception.php';
+require_once $_SERVER['ROOT_PATH'] . '/class/exception/database/invalid_identifier.exception.php';
+require_once $_SERVER['ROOT_PATH'] . '/class/exception/database/invalid_limit_data.exception.php';
+require_once $_SERVER['ROOT_PATH'] . '/class/exception/database/invalid_order_by_data.exception.php';
+require_once $_SERVER['ROOT_PATH'] . '/class/exception/database/invalid_parameter_data.exception.php';
+require_once $_SERVER['ROOT_PATH'] . '/class/exception/database/invalid_table_row_data.exception.php';
+require_once $_SERVER['ROOT_PATH'] . '/class/exception/database/invalid_value.exception.php';
+require_once $_SERVER['ROOT_PATH'] . '/class/exception/database/unsupported_driver.exception.php';
 
 final class Database {
-    private readonly string $driver;
-    private readonly string $host;
-    private readonly string $username;
-    private readonly string $password;
-    private readonly string $schema;
-    private readonly PDO $connection;
+    private string $driver;
+    private string $host;
+    private string $username;
+    private string $password;
+    private string $schema;
+    private PDO $connection;
 
     private function __construct(string $driver, string $host, string $user, string $password, string $schema) {
         $this->driver = $driver;

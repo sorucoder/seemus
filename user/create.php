@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-require_once $_SERVER['DOCUMENT_ROOT'] . '/class/user.class.php';
+require_once $_SERVER['ROOT_PATH'] . '/class/user.class.php';
 
 $currentUser = User::current();
 if (!$currentUser) {
@@ -19,11 +19,11 @@ if (!$currentUser) {
 <html lang="en">
 <head>
     <title>Seemus | Create User</title>
-    <?php include_once $_SERVER['DOCUMENT_ROOT'] . '/template/metadata.template.php'; ?>
-    <?php include_once $_SERVER['DOCUMENT_ROOT'] . '/template/bootstrap.template.php'; ?>
+    <?php include_once $_SERVER['ROOT_PATH'] . '/template/metadata.template.php'; ?>
+    <?php include_once $_SERVER['ROOT_PATH'] . '/template/bootstrap.template.php'; ?>
 </head>
 <body>
-    <?php include_once $_SERVER['DOCUMENT_ROOT'] . '/template/header.template.php'; ?>
+    <?php include_once $_SERVER['ROOT_PATH'] . '/template/header.template.php'; ?>
 
     <main class="container">
         <h2 class="my-3">Create New User</h2>

@@ -1,16 +1,16 @@
 <?php
 declare(strict_types=1);
 
-require_once $_SERVER['DOCUMENT_ROOT'] . '/library/htmlpurifier/HTMLPurifier.standalone.php';
+require_once $_SERVER['ROOT_PATH'] . '/library/htmlpurifier/HTMLPurifier.standalone.php';
 
-require_once $_SERVER['DOCUMENT_ROOT'] . '/class/database.class.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/class/user.class.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/class/permissions.class.php';
+require_once $_SERVER['ROOT_PATH'] . '/class/database.class.php';
+require_once $_SERVER['ROOT_PATH'] . '/class/user.class.php';
+require_once $_SERVER['ROOT_PATH'] . '/class/permissions.class.php';
 
-require_once $_SERVER['DOCUMENT_ROOT'] . '/class/exception/user/user_not_logged_in.exception.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/class/exception/media/invalid_content_data.exception.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/class/exception/media/content_archived.exception.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/class/exception/media/content_not_archived.exception.php';
+require_once $_SERVER['ROOT_PATH'] . '/class/exception/user/user_not_logged_in.exception.php';
+require_once $_SERVER['ROOT_PATH'] . '/class/exception/media/invalid_content_data.exception.php';
+require_once $_SERVER['ROOT_PATH'] . '/class/exception/media/content_archived.exception.php';
+require_once $_SERVER['ROOT_PATH'] . '/class/exception/media/content_not_archived.exception.php';
 
 final class Content {
     private int $id;

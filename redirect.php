@@ -28,11 +28,11 @@ header("Refresh: 3;" . $destination['url']);
 <html lang="en">
 <head>
     <title>Seemus | Logout</title>
-    <?php include_once $_SERVER['DOCUMENT_ROOT'] . '/template/metadata.template.php'; ?>
-    <?php include_once $_SERVER['DOCUMENT_ROOT'] . '/template/bootstrap.template.php'; ?>
+    <?php include_once $_SERVER['ROOT_PATH'] . '/template/metadata.template.php'; ?>
+    <?php include_once $_SERVER['ROOT_PATH'] . '/template/bootstrap.template.php'; ?>
 </head>
 <body>
-    <?php include_once $_SERVER['DOCUMENT_ROOT'] . '/template/header.template.php'; ?>
+    <?php include_once $_SERVER['ROOT_PATH'] . '/template/header.template.php'; ?>
 
     <main class="container">
         <h2 class="my-3"><?= htmlspecialchars($message) ?></h2>
