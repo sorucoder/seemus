@@ -1,8 +1,6 @@
 <?php
 declare(strict_types=1);
 
-require_once $_SERVER['ROOT_PATH'] . '/library/htmlpurifier/HTMLPurifier.standalone.php';
-
 require_once $_SERVER['ROOT_PATH'] . '/class/database.class.php';
 require_once $_SERVER['ROOT_PATH'] . '/class/user.class.php';
 require_once $_SERVER['ROOT_PATH'] . '/class/permissions.class.php';
