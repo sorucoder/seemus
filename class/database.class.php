@@ -77,7 +77,7 @@ final class Database {
         }
     }
 
-    private function sanitizeNullValue(null $value, ?string $type = NULL): ?string {
+    private function sanitizeNullValue(?string $type = NULL): ?string {
         switch ($this->driver) {
         case 'mysql':
             $type ??= 'NULL';
@@ -582,7 +582,7 @@ final class Database {
         switch ($this->driver) {
         case 'mysql':
             if (is_null($value)) {
-                return $this->sanitizeNullValue($value, $type);
+                return $this->sanitizeNullValue($type);
             } else if (is_bool($value)) {
                 return $this->sanitizeBooleanValue($value, $type);
             } else if (is_int($value)) {
