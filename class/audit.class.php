@@ -1,12 +1,12 @@
 <?php
 declare(strict_types=1);
 
-require_once './class/database.class.php';
-require_once './class/user.class.php';
-require_once './class/content.class.php';
-require_once './class/file.class.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/class/database.class.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/class/user.class.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/class/content.class.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/class/file.class.php';
 
-require_once './class/exception/user/user_not_logged_in.exception.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/class/exception/user/user_not_logged_in.exception.php';
 
 final class Audit {
     private int $id;
@@ -32,7 +32,7 @@ final class Audit {
         }
 
         $currentUserID = $currentUser->getID();
-        $mediaID = $media->getID();
+        $mediaID = $media ? $media->getID() : NULL;
 
         $database = Database::connect();
         $insertedAuditRow = NULL;
@@ -54,7 +54,7 @@ final class Audit {
                 ], 
                 [
                     'AUDIT_ID' => 'id',
-                    'AUDIT_DATE' => 'dateValue'
+                    'AUDIT_DATETIME' => 'dateTimeValue'
                 ]
             );
         } catch (PDOException $exception) {
@@ -65,7 +65,7 @@ final class Audit {
             }
         }
         $id = $insertedAuditRow['id'];
-        $date = new DateTime($insertedAuditRow['dateValue']);
+        $date = new DateTime($insertedAuditRow['dateTimeValue']);
 
         $audit = new Audit(
             $id,
@@ -90,7 +90,7 @@ final class Audit {
                     'USER_ID' => 'actorID',
                     'CONTENT_ID' => 'contentID',
                     'FILE_ID' => 'fileID',
-                    'AUDIT_DATE' => 'dateValue',
+                    'AUDIT_DATETIME' => 'dateTimeValue',
                     'AUDIT_ACTION' => 'action'
                 ],
                 '`AUDIT_ID` = :id',
@@ -116,7 +116,7 @@ final class Audit {
         } else if ($selectedAuditRow['fileID']) {
             $media = File::fromID($selectedAuditRow['fileID']);
         }
-        $date = new DateTime($selectedAuditRow['dateValue']);
+        $date = new DateTime($selectedAuditRow['dateTimeValue']);
         $action = $selectedAuditRow['action'];
 
         $audit = new Audit(

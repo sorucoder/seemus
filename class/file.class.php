@@ -1,14 +1,14 @@
 <?php
 declare(strict_types=1);
 
-require_once './class/database.class.php';
-require_once './class/user.class.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/class/database.class.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/class/user.class.php';
 
-require_once './class/exception/media/invalid_file_data.exception.php';
-require_once './class/exception/media/file_archived.exception.php';
-require_once './class/exception/media/file_not_archived.exception.php';
-require_once './class/exception/user/user_not_logged_in.exception.php';
-require_once './class/exception/user/user_not_permitted.exception.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/class/exception/media/invalid_file_data.exception.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/class/exception/media/file_archived.exception.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/class/exception/media/file_not_archived.exception.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/class/exception/user/user_not_logged_in.exception.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/class/exception/user/user_not_permitted.exception.php';
 
 final class File {
     private int $id;
@@ -134,7 +134,7 @@ final class File {
         // TODO: Find a REST API to validate files and use it
         return $bytes;
     }
-
+    
     public static function upload(string $title, string $description, string $mimeType, string $bytes): self {
         $currentUser = User::current();
         if (!$currentUser) {

@@ -1,16 +1,16 @@
 <?php
 declare(strict_types=1);
 
-require_once './class/database.class.php';
-require_once './class/audit.class.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/class/database.class.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/class/audit.class.php';
 
-require_once './class/exception/user/invalid_user_credentials.exception.php';
-require_once './class/exception/user/invalid_user_data.exception.php';
-require_once './class/exception/user/user_archived.exception.php';
-require_once './class/exception/user/user_not_archived.exception.php';
-require_once './class/exception/user/user_logged_in.exception.php';
-require_once './class/exception/user/user_not_logged_in.exception.php';
-require_once './class/exception/user/user_not_permitted.exception.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/class/exception/user/invalid_user_credentials.exception.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/class/exception/user/invalid_user_data.exception.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/class/exception/user/user_archived.exception.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/class/exception/user/user_not_archived.exception.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/class/exception/user/user_logged_in.exception.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/class/exception/user/user_not_logged_in.exception.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/class/exception/user/user_not_permitted.exception.php';
 
 final class User {
     private int $id;
@@ -25,11 +25,10 @@ final class User {
     private ?DateTime $lastPasswordChangeDateTime;
     private bool $archived;
 
-    private const ROLES = [
+    public const ROLES = [
         'admin' => 'Administrator',
         'user' => 'User'
     ];
-    private const PERMITTED_PASSWORD_CHANGE_INTERVAL = new DateInterval('PT1H');
 
     private function __construct(int $id, string $uuid, string $name, string $email, string $passwordHash, string $role, DateTime $createdDateTime, ?DateTime $loginDateTime, int $passwordChanges, ?DateTime $passwordChangeDateTime, bool $archived) {
         $this->id = $id;
@@ -92,6 +91,16 @@ final class User {
     }
 
     private static function validateRole(string $role): ?string {
+        $role = preg_replace(
+            [
+                '/[\r\n\t]+/u',
+                '/(\p{Z})\p{Z}+/u',
+                '/^\p{Z}/u',
+                '/\p{Z}$/u'
+            ],
+            '',
+            $role
+        );
         if (!isset(self::ROLES[$role])) {
             return NULL;
         }
@@ -99,9 +108,14 @@ final class User {
     }
 
     public static function current(): ?self {
-        if (isset($_SESSION['user'])) {
-            return $_SESSION['user'];
+        if (!session_id()) {
+            session_start();
         }
+        
+        if (isset($_SESSION['user'])) {
+            return unserialize($_SESSION['user']);
+        }
+
         return NULL;
     }
 
@@ -109,13 +123,27 @@ final class User {
         $currentUser = self::current();
         if (!$currentUser) {
             throw new UserNotLoggedInException();
-        } else if ($currentUser->role !== 'admin') {
+        } else if (!$currentUser->isAdministrator()) {
             throw new UserNotPermittedException();
         }
 
-        $name = self::validateName($name) ?? throw new InvalidUserDataException('invalid name');
-        $email = self::validateEmail($email) ?? throw new InvalidUserDataException('invalid email');
-        $role = self::validateRole($role) ?? throw new InvalidUserDataException('invalid role');
+        $invalidFields = [];
+        $name = self::validateName($name);
+        if (!$name) {
+            $invalidFields []= 'name';
+        }
+        $email = self::validateEmail($email);
+        if (!$email) {
+            $invalidFields []= 'email';
+        }
+        $role = self::validateRole($role);
+        if (!$role) {
+            $invalidFields []= 'role';
+        }
+        if (!empty($invalidFields)) {
+            throw new InvalidUserDataException($invalidFields);
+        }
+
         $passwordHash = password_hash($password, PASSWORD_DEFAULT);
 
         $database = Database::connect();
@@ -168,7 +196,6 @@ final class User {
 
         $roleName = self::ROLES[$role];
 
-        // TODO: Specify action
         Audit::log(
             "Created $roleName \"$name\" ($uuid)",
             NULL,
@@ -312,6 +339,199 @@ final class User {
         return $user;
     }
 
+    public static function all(): array {
+        $database = Database::connect();
+        $selectedUserRows = NULL;
+        try {
+            $selectedUserRows = $database->selectRows(
+                'USER',
+                [
+                    'USER_ID' => 'id',
+                    'USER_UUID' => 'uuid',
+                    'USER_NAME' => 'name',
+                    'USER_EMAIL' => 'email',
+                    'USER_PASSWORD_HASH' => 'passwordHash',
+                    'USER_ROLE' => 'role',
+                    'USER_CREATED_DATETIME' => 'createdDateTimeValue',
+                    'USER_LAST_LOGIN_DATETIME' => 'lastLoginDateTimeValue',
+                    'USER_PASSWORD_CHANGES' => 'passwordChanges',
+                    'USER_LAST_PASSWORD_CHANGE_DATETIME' => 'lastPasswordChangeDateTimeValue',
+                    'USER_ARCHIVED' => 'archivedValue'
+                ]
+            );
+        } catch (PDOException $exception) {
+            switch ($exception->getMessage()) {
+            // TODO: Write cases for common exceptions
+            default:
+                throw $exception;
+            }
+        }
+        $users = [];
+        foreach ($selectedUserRows as $_ => $selectedUserRow) {
+            $id = $selectedUserRow['id'];
+            $uuid = $selectedUserRow['uuid'];
+            $name = $selectedUserRow['name'];
+            $email = $selectedUserRow['email'];
+            $passwordHash = $selectedUserRow['passwordHash'];
+            $role = $selectedUserRow['role'];
+            $createdDateTime = new DateTime($selectedUserRow['createdDateTimeValue']);
+            $lastLoginDateTime = NULL;
+            if ($selectedUserRow['lastLoginDateTimeValue']) {
+                $lastLoginDateTime = new DateTime($selectedUserRow['lastLoginDateTimeValue']);
+            }
+            $passwordChanges = $selectedUserRow['passwordChanges'];
+            $lastPasswordChangeDateTime = NULL;
+            if ($selectedUserRow['lastPasswordChangeDateTimeValue']) {
+                $lastPasswordChangeDateTime = new DateTime($selectedUserRow['lastPasswordChangeDateTimeValue']);
+            }
+            $archived = $selectedUserRow['archivedValue'] !== 0;
+
+            $users []= new self(
+                $id,
+                $uuid,
+                $name,
+                $email, 
+                $passwordHash,
+                $role,
+                $createdDateTime,
+                $lastLoginDateTime,
+                $passwordChanges,
+                $lastPasswordChangeDateTime,
+                $archived
+            );
+        }
+
+        return $users;
+    }
+
+    public static function allAdministators(): array {
+        $database = Database::connect();
+        $selectedUserRows = NULL;
+        try {
+            $selectedUserRows = $database->selectRows(
+                'USER',
+                [
+                    'USER_ID' => 'id',
+                    'USER_UUID' => 'uuid',
+                    'USER_NAME' => 'name',
+                    'USER_EMAIL' => 'email',
+                    'USER_PASSWORD_HASH' => 'passwordHash',
+                    'USER_CREATED_DATETIME' => 'createdDateTimeValue',
+                    'USER_LAST_LOGIN_DATETIME' => 'lastLoginDateTimeValue',
+                    'USER_PASSWORD_CHANGES' => 'passwordChanges',
+                    'USER_LAST_PASSWORD_CHANGE_DATETIME' => 'lastPasswordChangeDateTimeValue',
+                    'USER_ARCHIVED' => 'archivedValue'
+                ],
+                '`USER_ROLE` = \'admin\''
+            );
+        } catch (PDOException $exception) {
+            switch ($exception->getMessage()) {
+            // TODO: Write cases for common exceptions
+            default:
+                throw $exception;
+            }
+        }
+        $users = [];
+        foreach ($selectedUserRows as $_ => $selectedUserRow) {
+            $id = $selectedUserRow['id'];
+            $uuid = $selectedUserRow['uuid'];
+            $name = $selectedUserRow['name'];
+            $email = $selectedUserRow['email'];
+            $passwordHash = $selectedUserRow['passwordHash'];
+            $createdDateTime = new DateTime($selectedUserRow['createdDateTimeValue']);
+            $lastLoginDateTime = NULL;
+            if ($selectedUserRow['lastLoginDateTimeValue']) {
+                $lastLoginDateTime = new DateTime($selectedUserRow['lastLoginDateTimeValue']);
+            }
+            $passwordChanges = $selectedUserRow['passwordChanges'];
+            $lastPasswordChangeDateTime = NULL;
+            if ($selectedUserRow['lastPasswordChangeDateTimeValue']) {
+                $lastPasswordChangeDateTime = new DateTime($selectedUserRow['lastPasswordChangeDateTimeValue']);
+            }
+            $archived = $selectedUserRow['archivedValue'] !== 0;
+
+            $users []= new self(
+                $id,
+                $uuid,
+                $name,
+                $email, 
+                $passwordHash,
+                'admin',
+                $createdDateTime,
+                $lastLoginDateTime,
+                $passwordChanges,
+                $lastPasswordChangeDateTime,
+                $archived
+            );
+        }
+
+        return $users;
+    }
+
+    public static function allUsers(): array {
+        $database = Database::connect();
+        $selectedUserRows = NULL;
+        try {
+            $selectedUserRows = $database->selectRows(
+                'USER',
+                [
+                    'USER_ID' => 'id',
+                    'USER_UUID' => 'uuid',
+                    'USER_NAME' => 'name',
+                    'USER_EMAIL' => 'email',
+                    'USER_PASSWORD_HASH' => 'passwordHash',
+                    'USER_CREATED_DATETIME' => 'createdDateTimeValue',
+                    'USER_LAST_LOGIN_DATETIME' => 'lastLoginDateTimeValue',
+                    'USER_PASSWORD_CHANGES' => 'passwordChanges',
+                    'USER_LAST_PASSWORD_CHANGE_DATETIME' => 'lastPasswordChangeDateTimeValue',
+                    'USER_ARCHIVED' => 'archivedValue'
+                ],
+                '`USER_ROLE` = \'user\''
+            );
+        } catch (PDOException $exception) {
+            switch ($exception->getMessage()) {
+            // TODO: Write cases for common exceptions
+            default:
+                throw $exception;
+            }
+        }
+        $users = [];
+        foreach ($selectedUserRows as $_ => $selectedUserRow) {
+            $id = $selectedUserRow['id'];
+            $uuid = $selectedUserRow['uuid'];
+            $name = $selectedUserRow['name'];
+            $email = $selectedUserRow['email'];
+            $passwordHash = $selectedUserRow['passwordHash'];
+            $createdDateTime = new DateTime($selectedUserRow['createdDateTimeValue']);
+            $lastLoginDateTime = NULL;
+            if ($selectedUserRow['lastLoginDateTimeValue']) {
+                $lastLoginDateTime = new DateTime($selectedUserRow['lastLoginDateTimeValue']);
+            }
+            $passwordChanges = $selectedUserRow['passwordChanges'];
+            $lastPasswordChangeDateTime = NULL;
+            if ($selectedUserRow['lastPasswordChangeDateTimeValue']) {
+                $lastPasswordChangeDateTime = new DateTime($selectedUserRow['lastPasswordChangeDateTimeValue']);
+            }
+            $archived = $selectedUserRow['archivedValue'] !== 0;
+
+            $users []= new self(
+                $id,
+                $uuid,
+                $name,
+                $email, 
+                $passwordHash,
+                'user',
+                $createdDateTime,
+                $lastLoginDateTime,
+                $passwordChanges,
+                $lastPasswordChangeDateTime,
+                $archived
+            );
+        }
+
+        return $users;
+    }
+
     public static function login(string $email, string $password): self {
         $currentUser = self::current();
         if ($currentUser) {
@@ -410,17 +630,20 @@ final class User {
             false
         );
 
+        if (!session_id()) {
+            session_start();
+        }
+        $_SESSION['user'] = serialize($user);
+        
         $roleName = self::ROLES[$role];
-
+        
         // TODO: Specify action
         Audit::log(
             "Logged in $roleName \"$name\" ($uuid)",
             NULL,
             ''
         );
-
-        $_SESSION['user'] = $user;
-
+        
         return $user;
     }
 
@@ -444,6 +667,7 @@ final class User {
         );
 
         unset($_SESSION['user']);
+        session_destroy();
     }
 
     public function getID(): int {
@@ -454,40 +678,65 @@ final class User {
         return $this->uuid;
     }
 
-    public function getName(): string {
-        return $this->name;
+    public function getName(string $format = 'full'): string {
+        $names = preg_split('/\p{Z}/', $this->name);
+        return match ($format) {
+            'first' => $names[0],
+            'last' => $names[count($names)-1],
+            'first-possessive' =>
+                str_ends_with($names[0], 's') || str_ends_with($names[0], 'S') ?
+                "$names[0]'" :
+                "$names[0]'s",
+            default =>$this->name
+        };
     }
 
     public function getEmail(): string {
         return $this->email;
     }
 
-    public function getRole(): string {
-        return self::ROLES[$this->role];
+    public function getRole(string $format = 'value'): string {
+        return match($format) {
+            'name' => self::ROLES[$this->role],
+            default => $this->role
+        };
     }
 
-    public function getCreatedDateTime(): DateTime {
-        return $this->createdDateTime;
+    public function getCreatedDateTime(string $format = 'value'): string|DateTime {
+        return match($format) {
+            'value' => $this->createdDateTime,
+            default => $this->createdDateTime->format($format)
+        };
     }
 
-    public function getLoginDateTime(): ?DateTime {
-        return $this->lastLoginDateTime;
+    public function getLastLoginDateTime(string $format = 'value'): null|string|DateTime {
+        return match($format) {
+            'value' => $this->lastLoginDateTime,
+            default => $this->lastLoginDateTime->format($format)
+        };
     }
 
     public function getPasswordChanges(): int {
         return $this->passwordChanges;
     }
 
-    public function getLastPasswordChangeDateTime(): ?DateTime {
-        return $this->lastPasswordChangeDateTime;
+    public function getLastPasswordChangeDateTime(string $format = 'value'): null|string|DateTime {
+        return match($format) {
+            'value' => $this->lastPasswordChangeDateTime,
+            default => $this->lastPasswordChangeDateTime->format($format)
+        };
     }
 
-    public function is(self $user): bool {
+    public function is(self $user): ?bool {
         return $this->id === $user->id;
     }
 
     public function isAdministrator(): bool {
         return $this->role === 'admin';
+    }
+
+    public function isUser(): bool {
+        return $this->role === 'user';
     }
 
     public function isArchived(): bool {
@@ -496,6 +745,61 @@ final class User {
 
     public function notify(array $headers, string $subject, string $message): void {
         mail($this->email, $subject, $message, $headers);
+    }
+
+    public function changeName(string $newName): void {
+        $currentUser = self::current();
+        if (!$currentUser) {
+            throw new UserNotLoggedInException();
+        }
+        
+        if (!($currentUser->is($this) || $currentUser->isAdministrator())) {
+            throw new UserNotPermittedException();
+        }
+        
+        if ($this->isArchived()) {
+            throw new UserArchivedException();
+        }
+
+        $id = $this->id;
+        $oldName = $this->name;
+        $newName = self::validateName($newName) ?? throw new InvalidUserDataException('name');
+        if ($oldName === $newName) {
+            return;
+        }
+
+        $database = Database::connect();
+        try {
+            $database->updateRow(
+                'USER',
+                [
+                    'USER_NAME' => ':newName'
+                ],
+                '`USER_ID` = :id',
+                [
+                    ':id' => $id,
+                    ':newName' => $newName
+                ]
+            );
+        } catch (PDOException $exception) {
+            switch ($exception->getMessage()) {
+            // TODO: Write cases for common exceptions
+            default:
+                throw $exception;
+            }
+        }
+
+        $uuid = $this->uuid;
+        $roleName = self::ROLES[$this->role];
+
+        // TODO: Specify action
+        Audit::log(
+            "Changed $roleName User \"$oldName\" ($uuid) name",
+            NULL,
+            ''
+        );
+
+        $this->name = $newName;
     }
 
     public function changeEmail(string $newEmail): void {
@@ -514,7 +818,7 @@ final class User {
 
         $id = $this->id;
         $oldEmail = $this->email;
-        $newEmail = self::validateEmail($newEmail) ?? throw new InvalidUserDataException('invalid email');
+        $newEmail = self::validateEmail($newEmail) ?? throw new InvalidUserDataException('email');
         if ($oldEmail === $newEmail) {
             return;
         }
@@ -568,7 +872,7 @@ final class User {
             throw new UserArchivedException();
         }
 
-        $newRole = self::validateRole($newRole) ?? throw new InvalidUserDataException('invalid role');
+        $newRole = self::validateRole($newRole) ?? throw new InvalidUserDataException('role');
 
         $id = $this->id;
         $oldRole = $this->role;
@@ -624,13 +928,6 @@ final class User {
         
         if ($this->isArchived()) {
             throw new UserArchivedException();
-        }
-
-        $nowDateTime = new DateTime();
-        $nextPasswordChangeDateTime = $this->lastPasswordChangeDateTime->add(self::PERMITTED_PASSWORD_CHANGE_INTERVAL);
-        $untilNextPasswordChangeInterval = $nowDateTime->diff($nextPasswordChangeDateTime);
-        if ($untilNextPasswordChangeInterval->invert) {
-            throw new UserNotPermittedException('requested password change too soon');
         }
 
         if (!password_verify($oldPassword, $this->passwordHash)) {

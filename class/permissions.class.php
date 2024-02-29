@@ -1,17 +1,17 @@
 <?php
 declare(strict_types=1);
 
-require_once './class/database.class.php';
-require_once './class/user.class.php';
-require_once './class/content.class.php';
-require_once './class/file.class.php';
-require_once './class/audit.class.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/class/database.class.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/class/user.class.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/class/content.class.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/class/file.class.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/class/audit.class.php';
 
-require_once './class/exception/media/invalid_permissions.exception.php';
-require_once './class/exception/user/user_archived.exception.php';
-require_once './class/exception/user/user_not_logged_in.exception.php';
-require_once './class/exception/user/user_permitted.exception.php';
-require_once './class/exception/user/user_not_permitted.exception.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/class/exception/media/invalid_permissions.exception.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/class/exception/user/user_archived.exception.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/class/exception/user/user_not_logged_in.exception.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/class/exception/user/user_permitted.exception.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/class/exception/user/user_not_permitted.exception.php';
 
 final class Permissions {
     private int $id;
@@ -98,7 +98,7 @@ final class Permissions {
 
         $userName = $user->getName();
         $userUUID = $user->getUUID();
-        $userRole = $user->getRole();
+        $userRole = $user->getRole('name');
         $mediaType = $media::class;
         $mediaUUID = $media->getUUID();
         $mediaTitle = $media->getTitle();
@@ -287,7 +287,7 @@ final class Permissions {
         $mediaTitle = $this->media->getTitle();
         $userUUID = $this->user->getUUID();
         $userName = $this->user->getName();
-        $userRole = $this->user->getRole();
+        $userRole = $this->user->getRole('name');
         $which = $newRead ? 'read' : 'read and write';
         $state = $newRead ? 'on' : 'off';
 
@@ -343,7 +343,7 @@ final class Permissions {
         $mediaTitle = $this->media->getTitle();
         $userUUID = $this->user->getUUID();
         $userName = $this->user->getName();
-        $userRole = $this->user->getRole();
+        $userRole = $this->user->getRole('name');
         $state = $oldWrite ? 'on' : 'off';
 
         // TODO: Specify action
@@ -402,7 +402,7 @@ final class Permissions {
         $mediaTitle = $this->media->getTitle();
         $userUUID = $this->user->getUUID();
         $userName = $this->user->getName();
-        $userRole = $this->user->getRole();
+        $userRole = $this->user->getRole('name');
         $which = $newArchive ? 'archive' : 'archive and delete';
         $state = $newArchive ? 'on' : 'off';
 
@@ -458,7 +458,7 @@ final class Permissions {
         $mediaTitle = $this->media->getTitle();
         $userUUID = $this->user->getUUID();
         $userName = $this->user->getName();
-        $userRole = $this->user->getRole();
+        $userRole = $this->user->getRole('name');
         $state = $newDelete ? 'on' : 'off';
 
         // TODO: Specify action

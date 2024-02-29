@@ -1,16 +1,16 @@
 <?php
 declare(strict_types=1);
 
-require_once './library/htmlpurifier/HTMLPurifier.standalone.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/library/htmlpurifier/HTMLPurifier.standalone.php';
 
-require_once './class/database.class.php';
-require_once './class/user.class.php';
-require_once './class/permissions.class.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/class/database.class.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/class/user.class.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/class/permissions.class.php';
 
-require_once './class/exception/user/user_not_logged_in.exception.php';
-require_once './class/exception/media/invalid_content_data.exception.php';
-require_once './class/exception/media/content_archived.exception.php';
-require_once './class/exception/media/content_not_archived.exception.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/class/exception/user/user_not_logged_in.exception.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/class/exception/media/invalid_content_data.exception.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/class/exception/media/content_archived.exception.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/class/exception/media/content_not_archived.exception.php';
 
 final class Content {
     private int $id;
@@ -70,9 +70,22 @@ final class Content {
             throw new UserNotLoggedInException();
         }
 
-        $title = self::validateTitle($title) ?? throw new InvalidContentDataException('invalid title');
-        $description = self::validateDescription($description) ?? throw new InvalidContentDataException('invalid description');
-        $body = self::validateBody($body) ?? throw new InvalidContentDataException('invalid body');
+        $invalidFields = [];
+        $title = self::validateTitle($title);
+        if (!$title) {
+            $invalidFields []= 'title';
+        }
+        $description = self::validateDescription($description);
+        if (!$description) {
+            $invalidFields []= 'description';
+        }
+        $body = self::validateBody($body);
+        if (!$body) {
+            $invalidFields []= 'body';
+        }
+        if (!empty($invalidFields)) {
+            throw new InvalidContentDataException($invalidFields);
+        }
 
         $currentUserID = $currentUser->getID();
 
@@ -201,6 +214,125 @@ final class Content {
         return $content;
     }
 
+    public static function all(): array {
+        $database = Database::connect();
+        $selectedContentRows = NULL;
+        try {
+            $selectedContentRows = $database->selectRows(
+                'CONTENT',
+                [
+                    'CONTENT_ID' => 'id',
+                    'CONTENT_UUID' => 'uuid',
+                    'CONTENT_TITLE' => 'title',
+                    'CONTENT_DESCRIPTION' => 'description',
+                    'CONTENT_BODY' => 'body',
+                    'USER_ID' => 'authorID',
+                    'CONTENT_CREATED_DATETIME' => 'createdDateTimeValue',
+                    'CONTENT_LAST_UPDATED_DATETIME' => 'lastUpdatedDateTimeValue',
+                    'CONTENT_ARCHIVED' => 'archivedValue'
+                ]
+            );
+        } catch (PDOException $exception) {
+            // TODO: Write cases for common exceptions here
+            switch ($exception->getMessage()) {
+            default:
+                throw $exception;
+            }
+        }
+        $content = [];
+        foreach ($selectedContentRows as $_ => $selectedContentRow) {
+            $id = $selectedContentRow['id'];
+            $uuid = $selectedContentRow['uuid'];
+            $title = $selectedContentRow['title'];
+            $description = $selectedContentRow['description'];
+            $body = $selectedContentRow['body'];
+            $author = User::fromID($selectedContentRow['authorID']);
+            $createdDateTime = new DateTime($selectedContentRow['createdDateTimeValue']);
+            $lastUpdatedDateTime = NULL;
+            if ($selectedContentRow['lastUpdatedDateTime']) {
+                $lastUpdatedDateTime = new DateTime($selectedContentRow['lastUpdatedDateTime']);
+            }
+            $archived = $selectedContentRow['archivedValue'] !== 0;
+
+            $content []= new self(
+                $id,
+                $uuid,
+                $title,
+                $description,
+                $body,
+                $author,
+                $createdDateTime,
+                $lastUpdatedDateTime,
+                $archived
+            );
+        }
+
+        return $content;
+    }
+
+    public static function allByAuthor(User $author): array {
+        $authorID = $author->getID();
+
+        $database = Database::connect();
+        $selectedContentRows = NULL;
+        try {
+            $selectedContentRows = $database->selectRows(
+                'CONTENT',
+                [
+                    'CONTENT_ID' => 'id',
+                    'CONTENT_UUID' => 'uuid',
+                    'CONTENT_TITLE' => 'title',
+                    'CONTENT_DESCRIPTION' => 'description',
+                    'CONTENT_BODY' => 'body',
+                    'CONTENT_CREATED_DATETIME' => 'createdDateTimeValue',
+                    'CONTENT_LAST_UPDATED_DATETIME' => 'lastUpdatedDateTimeValue',
+                    'CONTENT_ARCHIVED' => 'archivedValue'
+                ],
+                '`USER_ID` = :authorID',
+                NULL,
+                NULL,
+                NULL,
+                [
+                    ':authorID' => $authorID
+                ]
+            );
+        } catch (PDOException $exception) {
+            // TODO: Write cases for common exceptions here
+            switch ($exception->getMessage()) {
+            default:
+                throw $exception;
+            }
+        }
+        $content = [];
+        foreach ($selectedContentRows as $_ => $selectedContentRow) {
+            $id = $selectedContentRow['id'];
+            $uuid = $selectedContentRow['uuid'];
+            $title = $selectedContentRow['title'];
+            $description = $selectedContentRow['description'];
+            $body = $selectedContentRow['body'];
+            $createdDateTime = new DateTime($selectedContentRow['createdDateTimeValue']);
+            $lastUpdatedDateTime = NULL;
+            if ($selectedContentRow['lastUpdatedDateTime']) {
+                $lastUpdatedDateTime = new DateTime($selectedContentRow['lastUpdatedDateTime']);
+            }
+            $archived = $selectedContentRow['archivedValue'] !== 0;
+
+            $content []= new self(
+                $id,
+                $uuid,
+                $title,
+                $description,
+                $body,
+                $author,
+                $createdDateTime,
+                $lastUpdatedDateTime,
+                $archived
+            );
+        }
+
+        return $content;
+    }
+
     public static function fromUUID(string $uuid): ?self {
         $database = Database::connect();
         $selectedContentRow = NULL;
@@ -217,7 +349,7 @@ final class Content {
                     'CONTENT_LAST_UPDATED_DATETIME' => 'lastUpdatedDateTimeValue',
                     'CONTENT_ARCHIVED' => 'archivedValue'
                 ],
-                '`USER_UUID` = :uuid',
+                '`CONTENT_UUID` = :uuid',
                 [
                     ':uuid' => $uuid
                 ]
@@ -283,12 +415,18 @@ final class Content {
         return $this->author;
     }
 
-    public function getCreatedDateTime(): DateTime {
-        return $this->createdDateTime;
+    public function getCreatedDateTime(string $format = 'value'): string|DateTime {
+        return match($format) {
+            'value' => $this->createdDateTime,
+            default => $this->createdDateTime->format($format)
+        };
     }
 
-    public function getLastUpdatedDateTime(): ?DateTime {
-        return $this->lastUpdatedDateTime;
+    public function getLastUpdatedDateTime(string $format = 'value'): null|string|DateTime {
+        return match($format) {
+            'value' => $this->createdDateTime,
+            default => $this->createdDateTime->format($format)
+        };
     }
 
     public function isArchived(): bool {
@@ -314,7 +452,7 @@ final class Content {
         
         $id = $this->id;
         $oldTitle = $this->title;
-        $newTitle = self::validateTitle($newTitle) ?? throw new InvalidContentDataException('invalid title');
+        $newTitle = self::validateTitle($newTitle) ?? throw new InvalidContentDataException('title');
         if ($oldTitle === $newTitle) {
             return;
         }
@@ -379,7 +517,7 @@ final class Content {
         
         $id = $this->id;
         $oldDescription = $this->description;
-        $newDescription = self::validateDescription($newDescription) ?? throw new InvalidContentDataException('invalid description');
+        $newDescription = self::validateDescription($newDescription) ?? throw new InvalidContentDataException('description');
         if ($oldDescription === $newDescription) {
             return;
         }
@@ -444,7 +582,7 @@ final class Content {
 
         $id = $this->id;
         $oldBody = $this->body;
-        $newBody = self::validateBody($newBody) ?? throw new InvalidContentDataException('invalid body');
+        $newBody = self::validateBody($newBody) ?? throw new InvalidContentDataException('body');
         if ($oldBody === $newBody) {
             return;
         }
@@ -636,7 +774,7 @@ final class Content {
         // TODO: Specify action
         Audit::log(
             "Deleted Content \"$title\" ($uuid)",
-            $this,
+            NULL,
             ''
         );
     }

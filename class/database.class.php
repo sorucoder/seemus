@@ -1,16 +1,16 @@
 <?php
 declare(strict_types=1);
 
-require_once './class/exception/database/connection.exception.php';
-require_once './class/exception/database/invalid_column_data.exception.php';
-require_once './class/exception/database/invalid_group_by_data.exception.php';
-require_once './class/exception/database/invalid_identifier.exception.php';
-require_once './class/exception/database/invalid_limit_data.exception.php';
-require_once './class/exception/database/invalid_order_by_data.exception.php';
-require_once './class/exception/database/invalid_parameter_data.exception.php';
-require_once './class/exception/database/invalid_table_row_data.exception.php';
-require_once './class/exception/database/invalid_value.exception.php';
-require_once './class/exception/database/unsupported_driver.exception.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/class/exception/database/connection.exception.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/class/exception/database/invalid_column_data.exception.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/class/exception/database/invalid_group_by_data.exception.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/class/exception/database/invalid_identifier.exception.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/class/exception/database/invalid_limit_data.exception.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/class/exception/database/invalid_order_by_data.exception.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/class/exception/database/invalid_parameter_data.exception.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/class/exception/database/invalid_table_row_data.exception.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/class/exception/database/invalid_value.exception.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/class/exception/database/unsupported_driver.exception.php';
 
 final class Database {
     private readonly string $driver;
@@ -33,22 +33,21 @@ final class Database {
     }
 
     public static function connect(): self {
-        if (!isset($_SESSION['database'])) {
-            $driver = $_SERVER['DATABASE_DRIVER'] ?? throw new ConnectionException('driver is not set');
-            $host = $_SERVER['DATABASE_HOST'] ?? throw new ConnectionException('host is not set');
-            $user = $_SERVER['DATABASE_USER'] ?? throw new ConnectionException('user is not set');
-            $password = $_SERVER['DATABASE_PASSWORD'] ?? throw new ConnectionException('password is not set');
-            $schema = $_SERVER['DATABASE_SCHEMA'] ?? throw new ConnectionException('schema is not set');
+        $driver = $_SERVER['DATABASE_DRIVER'] ?? throw new ConnectionException('driver is not set');
+        $host = $_SERVER['DATABASE_HOST'] ?? throw new ConnectionException('host is not set');
+        $user = $_SERVER['DATABASE_USER'] ?? throw new ConnectionException('user is not set');
+        $password = $_SERVER['DATABASE_PASSWORD'] ?? throw new ConnectionException('password is not set');
+        $schema = $_SERVER['DATABASE_SCHEMA'] ?? throw new ConnectionException('schema is not set');
 
-            $_SESSION['database'] = new self(
-                $driver,
-                $host,
-                $user,
-                $password,
-                $schema
-            );
-        }
-        return $_SESSION['database'];
+        $database = new self(
+            $driver,
+            $host,
+            $user,
+            $password,
+            $schema
+        );
+        
+        return $database;
     }
 
     private function sanitizeIdentifier(mixed $identifier): string {
@@ -1036,6 +1035,27 @@ final class Database {
                 return NULL;
             }
             return $selectedRow;
+        default:
+            throw new UnsupportedDriverException("cannot select row with \"{$this->driver}\"");
+        }
+    }
+
+    public function selectRows(string|array $tableData, null|string|array $selectionData = NULL, ?string $where = NULL, null|string|array $groupByData = NULL, ?string $having = NULL, null|string|array $orderByData = NULL,  ?array $parameters = NULL, null|int|array $limitData = NULL): array {
+        switch ($this->driver) {
+        case 'mysql':
+            $selectionStatement = $this->buildSelectStatement(
+                $tableData,
+                $selectionData,
+                $where,
+                $groupByData,
+                $having,
+                $orderByData,
+                $limitData
+            );
+            $this->bindParameters($selectionStatement, $parameters);
+            $selectionResult = $this->connection->query($selectionStatement);
+            $selectedRows = $selectionResult->fetchAll();
+            return $selectedRows;
         default:
             throw new UnsupportedDriverException("cannot select row with \"{$this->driver}\"");
         }
